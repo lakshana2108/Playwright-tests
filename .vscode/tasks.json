@@ -1,0 +1,19 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    { "label": "Starter: npm ci", "type": "process", "command": "npm", "windows": { "command": "npm.cmd" }, "args": ["ci"], "options": { "cwd": "${workspaceFolder}" }, "problemMatcher": [] },
+    { "label": "Starter: install Chromium", "type": "npm", "script": "setup:browsers", "problemMatcher": [] },
+    { "label": "Starter: quality", "type": "npm", "script": "quality", "group": { "kind": "build", "isDefault": true }, "problemMatcher": [] },
+    { "label": "Starter: generate BDD", "type": "npm", "script": "bdd:gen", "problemMatcher": [] },
+    { "label": "Starter: list tests", "type": "npm", "script": "test:list", "problemMatcher": [] },
+    { "label": "Starter: check local setup", "type": "npm", "script": "setup:check", "problemMatcher": [] },
+    { "label": "Starter: capture login", "type": "npm", "script": "auth:capture", "problemMatcher": [] },
+    { "label": "Starter: explicit credential login", "type": "npm", "script": "auth:login", "problemMatcher": [] },
+    { "label": "Starter: native smoke", "type": "npm", "script": "test:smoke", "group": "test", "problemMatcher": [] },
+    { "label": "Starter: BDD smoke", "type": "npm", "script": "test:bdd", "group": "test", "problemMatcher": [] },
+    { "label": "Starter: native UI", "type": "npm", "script": "test:ui", "problemMatcher": [] },
+    { "label": "Starter: BDD UI", "type": "npm", "script": "test:bdd:ui", "problemMatcher": [] },
+    { "label": "Starter: native report", "type": "npm", "script": "report:native", "problemMatcher": [] },
+    { "label": "Starter: BDD report", "type": "npm", "script": "report:bdd", "problemMatcher": [] }
+  ]
+}

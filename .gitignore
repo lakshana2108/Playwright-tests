@@ -1,0 +1,12 @@
+node_modules/
+.env
+.env.*
+!.env.example
+.auth/
+.features-gen/
+artifacts/
+test-results/
+downloads/
+.workflow-inputs/
+*.tsbuildinfo
+.DS_Store

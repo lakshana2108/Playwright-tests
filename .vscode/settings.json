@@ -1,0 +1,9 @@
+{
+  "cucumber.features": ["features/current/**/*.feature"],
+  "cucumber.glue": ["tests/steps/**/*.ts"],
+  "editor.codeActionsOnSave": { "source.fixAll.eslint": "explicit" },
+  "files.exclude": { ".features-gen": true },
+  "search.exclude": { ".features-gen": true, "artifacts": true, "test-results": true, "node_modules": true },
+  "typescript.tsdk": "node_modules/typescript/lib",
+  "typescript.enablePromptUseWorkspaceTsdk": true
+}

@@ -1,0 +1,81 @@
+name: My Workspace live smoke (optional)
+
+on:
+  workflow_dispatch:
+    inputs:
+      suite:
+        description: Learning style to execute
+        type: choice
+        options: [native, bdd]
+        default: native
+      upload_reports:
+        description: Upload potentially sensitive HTML/JUnit reports only with approval
+        type: boolean
+        default: false
+
+permissions:
+  contents: read
+
+concurrency:
+  group: myworkspace-live-qa-account
+  cancel-in-progress: false
+
+jobs:
+  gate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Require explicit enablement and trusted main branch
+        env:
+          ENABLED: ${{ vars.LIVE_TESTS_ENABLED }}
+          REF: ${{ github.ref }}
+        run: |
+          if [ "$ENABLED" != "true" ]; then
+            echo "::error::Set repository variable LIVE_TESTS_ENABLED=true only after protected runner setup."
+            exit 1
+          fi
+          if [ "$REF" != "refs/heads/main" ]; then
+            echo "::error::Live execution is restricted to main."
+            exit 1
+          fi
+
+  smoke:
+    needs: gate
+    runs-on: [self-hosted, myworkspace-qa]
+    environment: myworkspace-test
+    timeout-minutes: 15
+    env:
+      BASE_URL: ${{ vars.MYWORKSPACE_BASE_URL }}
+      AUTH_STATE_PATH: ${{ vars.MYWORKSPACE_AUTH_STATE_PATH }}
+      PW_CAPTURE_EVIDENCE: "false"
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version: "22"
+          cache: npm
+      - name: Require explicit target and runner-private state path
+        run: |
+          node -e "const path = require('node:path'); for (const key of ['BASE_URL', 'AUTH_STATE_PATH']) { if (!process.env[key]?.trim()) { console.error('Missing required setting: ' + key); process.exit(1); } } const state = process.env.AUTH_STATE_PATH; const relative = path.relative(process.cwd(), state); if (!path.isAbsolute(state) || (!path.isAbsolute(relative) && relative !== '..' && !relative.startsWith('..' + path.sep))) { console.error('Runner auth state must use an absolute private path outside the checkout.'); process.exit(1); }"
+      - run: npm ci
+      - run: npm run quality
+      - run: npx playwright install chromium
+      - run: npm run setup:check
+      - name: Native smoke
+        if: ${{ inputs.suite == 'native' }}
+        run: npm run test:smoke
+      - name: BDD smoke
+        if: ${{ inputs.suite == 'bdd' }}
+        run: npm run test:bdd -- --grep @Smoke
+      - name: Upload approved reports only
+        if: ${{ always() && inputs.upload_reports }}
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: myworkspace-smoke-reports
+          path: |
+            artifacts/native/html/
+            artifacts/native/junit.xml
+            artifacts/bdd/html/
+            artifacts/bdd/junit.xml
+          retention-days: 3
+          if-no-files-found: warn

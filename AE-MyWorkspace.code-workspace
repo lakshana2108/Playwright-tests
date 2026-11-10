@@ -1,0 +1,9 @@
+{
+  "folders": [
+    { "name": "AE My Workspace - QA Learning", "path": "." }
+  ],
+  "settings": {
+    "workbench.startupEditor": "readme",
+    "window.title": "${rootName}${separator}${activeEditorShort}${separator}${appName}"
+  }
+}
